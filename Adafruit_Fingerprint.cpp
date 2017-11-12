@@ -114,6 +114,22 @@ uint8_t Adafruit_Fingerprint::storeModel(uint16_t id) {
    return -1;
   return recvPacket[1];
 }
+
+uint8_t Adafruit_Fingerprint::downloadModel(uint16_t id, uint8_t packet_1[], uint8_t packet_2[], uint8_t slot) {
+  uint8_t packet[] = {FINGERPRINT_DOWNLOAD, slot};
+  writePacket(theAddress, FINGERPRINT_COMMANDPACKET, sizeof(packet)+2, packet);
+  uint8_t len = getReply(recvPacket);
+  
+  if ((len != 1) && (recvPacket[0] != FINGERPRINT_ACKPACKET))
+   return -1;
+  if (recvPacket[1] == 0x00) {
+    writePacket(theAddress, FINGERPRINT_DATAPACKET, sizeof(packet_1)+2, packet_1);
+    writePacket(theAddress, FINGERPRINT_DATAPACKET, sizeof(packet_2)+2, packet_2);
+    return recvPacket[1];
+  } else {
+    return recvPacket[1];
+  }
+}
     
 //read a fingerprint template from flash into Char Buffer 1
 uint8_t Adafruit_Fingerprint::loadModel(uint16_t id) {
